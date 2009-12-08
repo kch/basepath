@@ -8,4 +8,5 @@ lambda do
   base        = base.parent until base == base.parent or gotbase[]
   gotbase[] or raise "Can't find #{dotbase} for BASE_PATH"
   ::BASE_PATH = base
+  $: << BASE_PATH.to_s
 end.call
