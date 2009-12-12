@@ -20,5 +20,6 @@ lambda do
   base_conf[:consts].scan(/([A-Z][A-Z0-9_]*)=(.+)/).each { |k, v| Object.const_set(k, ::BASE_PATH.join(v)) }
 
   # set load_paths
-  $:.concat base_conf[:load_paths].split("\n").map { |s| ::BASE_PATH.join(s) }
+  $:.concat base_conf[:load_paths].split("\n")\
+    .map { |s| Dir[::BASE_PATH.join(s)].select { |s| File.directory? s } }.flatten
 end.call
