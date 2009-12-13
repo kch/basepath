@@ -14,7 +14,7 @@ lambda do
   # read dot_base
   base_conf = IO.read(::BASE_PATH.join(dot_base)).strip.gsub(/[ \t]/, '').gsub(/\n+/, "\n")\
     .scan(/^\[(\w+)\]((?:\n[^\[].*)*)/)\
-    .inject({}) { |h, (k, s)| h[k.to_sym] = s.strip; h }
+    .inject(Hash.new('')) { |h, (k, s)| h[k.to_sym] = s.strip; h }
 
   # set path consts
   base_conf[:consts].scan(/([A-Z][A-Z0-9_]*)=(.+)/).each { |k, v| Object.const_set(k, ::BASE_PATH.join(v)) }
