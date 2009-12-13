@@ -22,4 +22,12 @@ lambda do
   # set load_paths
   load_paths = base_conf[:load_paths].split("\n").map { |s| Dir[::BASE_PATH.join(s)].select { |s| File.directory? s } }.flatten
   $LOAD_PATH.unshift(*load_paths)
+
+  # requires
+  loaded = caller(0).map { |s| s[/\A(.+?)(?:\.rb)?:\d+(?::in `.*?')?\z/, 1] }.compact.uniq
+  libs   = base_conf[:requires].split("\n").each do |lib|
+    rx = /\b#{Regexp.escape(lib)}\z/
+    break if loaded.any? { |s| s =~ rx }
+    require lib
+  end
 end.call
