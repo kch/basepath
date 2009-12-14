@@ -5,8 +5,8 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "basepath"
-    gem.summary = %Q{TODO: one-line summary of your gem}
-    gem.description = %Q{TODO: longer description of your gem}
+    gem.summary = %Q{Define you application base path for easy requires and general access to files.}
+    gem.description = %Q{By adding a .base file to your application base dir, helps you augment $LOAD_PATH, auto-require files, and set constants to important paths.}
     gem.email = "dev@caiochassot.com"
     gem.homepage = "http://github.com/kch/basepath"
     gem.authors = ["Caio Chassot"]
