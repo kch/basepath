@@ -27,11 +27,19 @@ lambda do
     .inject(Hash.new('')) { |h, (k, s)| h[k.to_sym] = s.strip; h }
 
   # set path consts
-  base_conf[:consts].scan(/([A-Z][A-Z0-9_]*)=(.+)/).each { |k, v| Object.const_set(k, ::BASE_PATH.join(v)) }
+  consts    = base_conf[:consts].scan(/([A-Z][A-Z0-9_]*)=(.+)/).inject({}) { |h, (k, v)| h[k] = v; h }
+  RX_CONSTS = /^(#{consts.keys.map(&Regexp.method(:escape)).join('|')})\//
+  consts.each do |k, v|
+    const_base = v.sub!(RX_CONSTS, '') ? Object.const_get($1) : ::BASE_PATH
+    Object.const_set(k, const_base.join(v))
+  end
 
   # set load_paths
   load_paths = base_conf[:load_paths].split("\n").map { |s| Dir[::BASE_PATH.join(s).to_s] }.flatten
   load_paths = load_paths.select { |s| File.directory? s }
+  load_paths.each do |s|
+    s.sub!(RX_CONSTS, '')
+  end
   $LOAD_PATH.unshift(*load_paths)
 
   # requires
