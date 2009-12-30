@@ -37,11 +37,9 @@ lambda do
   consts.each { |k, v| Object.const_set(k, Basepath.const_expand!(v)) }
 
   # set load_paths
-  load_paths = base_conf[:load_paths].split("\n").map { |s| Dir[::BASE_PATH.join(s).to_s] }.flatten
-  load_paths = load_paths.select { |s| File.directory? s }
-  load_paths.each do |s|
-    s.sub!(RX_CONSTS, '')
-  end
+  load_paths = base_conf[:load_paths].split("\n").map { |s|
+    Dir[Basepath.const_expand!(s).to_s] }.flatten.select { |s|
+      File.directory? s }
   $LOAD_PATH.unshift(*load_paths)
 
   # requires
