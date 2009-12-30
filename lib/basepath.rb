@@ -1,5 +1,15 @@
 require 'pathname'
 
+module Basepath
+  extend self
+
+  def mine(file = false)
+    path_to_first_caller = (s = caller.last) ? s.sub(/:\d+(?::in `.*?')?$/, '') : __FILE__
+    path = Pathname.new(path_to_first_caller).realpath
+    file ? path : path.dirname
+  end
+end
+
 lambda do
   return if Object.const_defined?("BASE_PATH")
 
