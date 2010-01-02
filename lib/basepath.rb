@@ -30,6 +30,7 @@ lambda do
   base_conf = IO.read(::BASE_PATH.join(dot_base)).strip.gsub(/[ \t]/, '').gsub(/\n+/, "\n")\
     .scan(/^\[(\w+)\]((?:\n[^\[].*)*)/)\
     .inject(Hash.new('')) { |h, (k, s)| h[k.to_sym] = s.strip; h }
+  base_conf.values.each { |s| s.gsub!(/\s*#.*\n/, "\n") }
 
   # set path consts
   consts    = base_conf[:consts].scan(/([A-Z][A-Z0-9_]*)=(.+)/).inject({}) { |h, (k, v)| h[k] = v; h }
