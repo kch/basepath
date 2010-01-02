@@ -9,7 +9,7 @@ module Basepath
     file ? path : path.dirname
   end
 
-  # used when settings consts and load_path
+  # used when setting consts and load_path
   def const_expand!(s)
     (s.sub!(RX_CONSTS, '') ? Object.const_get($1) : ::BASE_PATH).join(s);
   end
