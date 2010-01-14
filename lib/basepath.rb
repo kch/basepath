@@ -19,7 +19,7 @@ lambda do
   return if Object.const_defined?("BASE_PATH")
 
   # find and set base
-  first_path  = (s = caller.last) ? s.sub(/:\d+(?::in `.*?')?$/, '') : __FILE__
+  first_path  = (s = caller.last) ? s.sub(/:\d+(?::in `.*?')?$/, '') : __FILE__ # file is just for when basepath is called directly
   cur_path    = Pathname.new(first_path).dirname.realpath
   dot_base    = '.base'
   got_base    = lambda { cur_path.join(dot_base).exist? }
