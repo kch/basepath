@@ -47,7 +47,6 @@ lambda do
   loaded = caller(0).map { |s| s[/\A(.+?)(?:\.rb)?:\d+(?::in `.*?')?\z/, 1] }.compact.uniq
   base_conf[:requires].split("\n").each do |lib|
     rx = /\b#{Regexp.escape(lib)}\z/
-    break if loaded.any? { |s| s =~ rx }
     require lib
   end
 end.call
