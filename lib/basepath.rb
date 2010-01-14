@@ -24,7 +24,7 @@ lambda do
   dot_base    = '.base'
   got_base    = lambda { cur_path.join(dot_base).exist? }
   cur_path    = cur_path.parent until cur_path == cur_path.parent or got_base[]
-  ::BASE_PATH = got_base[] ? cur_path : raise("Can't find #{dot_base} for BASE_PATH")
+  ::BASE_PATH = got_base[] ? cur_path : raise("Can't find #{dot_base} for BASE_PATH. (started at #{first_path})")
 
   # read dot_base
   base_conf = IO.read(::BASE_PATH.join(dot_base)).strip.gsub(/[ \t]/, '').gsub(/\n+/, "\n")\
