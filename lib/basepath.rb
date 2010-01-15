@@ -33,9 +33,10 @@ lambda do
   base_conf.values.each { |s| s.gsub!(/\s*#.*\n/, "\n") }
 
   # set path consts
-  consts    = base_conf[:consts].scan(/([A-Z][A-Z0-9_]*)=(.+)/).inject({}) { |h, (k, v)| h[k] = v; h }
+  k_order   = [] # ruby 1.8 doesn't retain hash key order
+  consts    = base_conf[:consts].scan(/([A-Z][A-Z0-9_]*)=(.+)/).inject({}) { |h, (k, v)| k_order << k; h[k] = v; h }
   RX_CONSTS = /^(#{consts.keys.map(&Regexp.method(:escape)).join('|')})(?:\/|$)/
-  consts.each { |k, v| Object.const_set(k, Basepath.const_expand!(v)) }
+  k_order.each { |k| Object.const_set(k, Basepath.const_expand!(consts[k])) }
 
   # set load_paths
   load_paths = base_conf[:load_paths].split("\n").map { |s|
