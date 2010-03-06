@@ -19,7 +19,9 @@ lambda do
   return if Object.const_defined?("BASE_PATH")
   # find and set base
   first_path    = (s = caller.last) ? s.sub(/:\d+(?::in `.*?')?$/, '') : __FILE__ # file is just for when basepath is called directly
-  cur_path      = Pathname.new(first_path).dirname.realpath
+  # handles irb, general pwd cases. TODO: write decent code later
+  cur_path      = Pathname.new(Dir.pwd) if defined?(IRB) || defined?(Rake) || defined?(Thin)
+  cur_path    ||= Pathname.new(first_path).dirname.realpath
   dot_base      = '.base'
   got_base      = lambda { cur_path.join(dot_base).exist? }
   cur_path      = cur_path.parent until cur_path == cur_path.parent or got_base[]
