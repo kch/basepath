@@ -46,7 +46,10 @@ lambda do
 
   # requires
   loaded = caller(0).map { |s| s[/\A(.+?)(?:\.rb)?:\d+(?::in `.*?')?\z/, 1] }.compact.uniq
-  base_conf[:requires].split("\n").each do |lib|
+  globs, names = base_conf[:requires].split("\n").partition { |s| s =~ /\*/ }
+  names += globs.map { |s| Dir[Basepath.const_expand!(s).to_s + ".rb"] }\
+    .flatten.select { |s| File.file? s }.map { |s| s.sub(/\.rb$/, '') }
+  names.each do |lib|
     rx = /\b#{Regexp.escape(lib)}\z/
     require lib
   end
