@@ -50,4 +50,7 @@ lambda do
     rx = /\b#{Regexp.escape(lib)}\z/
     require lib
   end
+
+  # includes
+  base_conf[:includes].split("\n").each { |k| include Object.const_get(k.strip) }
 end.call
