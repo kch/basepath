@@ -1,6 +1,7 @@
 require 'pathname'
 
 module Basepath
+  DOT_BASE = '.base'
   extend self
 
   def path_from_caller_line(caller_line)
@@ -18,20 +19,42 @@ module Basepath
     (s.sub!(RX_CONSTS, '') ? Object.const_get($1) : ::BASE_PATH).join(s);
   end
 
+  def find_base(start_path)
+    cur_path = start_path
+    got_base = lambda { cur_path.join(DOT_BASE).exist? }
+    cur_path = cur_path.parent until cur_path == cur_path.parent or got_base[]
+    cur_path if got_base[]
+  end
+
+  def find_base!
+    paths_tried = []
+    index_of_require_line = caller.index { |line| line =~ /`require'$/ } \
+      and caller_line_before_require = caller[index_of_require_line.succ]
+    if index_of_require_line && caller_line_before_require
+      path_from_requirer = Pathname.new(path_from_caller_line(caller_line_before_require)).realpath.dirname
+      base_from_requirer = find_base(path_from_requirer)
+      return base_from_requirer if base_from_requirer
+      paths_tried << path_from_requirer
+    end
+    path_from_pwd = Pathname.new(Dir.pwd).realpath
+    pwd_path_parent_of_requirer_path = index_of_require_line && "#{path_from_requirer}/".index("#{path_from_pwd}/") == 0
+    if not pwd_path_parent_of_requirer_path
+      base_from_pwd = find_base(path_from_pwd)
+      return base_from_pwd if base_from_pwd
+      paths_tried << path_from_pwd
+    end
+    err = "Can't find #{DOT_BASE} for BASE_PATH. (started at #{paths_tried.first}"
+    err << ", then tried #{paths_tried[1]}" if paths_tried[1]
+    err << ")"
+    raise err
+  end
+
   def resolve!
     return if Object.const_defined?("BASE_PATH")
-    # find and set base
-    first_path   = (s = caller.last) ? s.sub(/:\d+(?::in `.*?')?$/, '') : __FILE__ # file is just for when basepath is called directly
-    # handles irb, general pwd cases. TODO: write decent code later
-    cur_path     = Pathname.new(Dir.pwd) if defined?(IRB) || defined?(Rake) || defined?(Thin)
-    cur_path   ||= Pathname.new(first_path).dirname.realpath
-    dot_base     = '.base'
-    got_base     = lambda { cur_path.join(dot_base).exist? }
-    cur_path     = cur_path.parent until cur_path == cur_path.parent or got_base[]
-    Object.const_set :BASE_PATH, got_base[] ? cur_path : raise("Can't find #{dot_base} for BASE_PATH. (started at #{first_path})")
+    Object.const_set :BASE_PATH, find_base!
 
     # read dot_base
-    base_conf = IO.read(::BASE_PATH.join(dot_base)).strip.gsub(/[ \t]/, '').gsub(/\n+/, "\n")\
+    base_conf = IO.read(::BASE_PATH.join(DOT_BASE)).strip.gsub(/[ \t]/, '').gsub(/\n+/, "\n")\
       .scan(/^\[(\w+)\]((?:\n[^\[].*)*)/)\
       .inject(Hash.new('')) { |h, (k, s)| h[k.to_sym] = s.strip; h }
     base_conf.values.each { |s| s.gsub!(/\s*#.*\n/, "\n") }
