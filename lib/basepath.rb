@@ -3,9 +3,13 @@ require 'pathname'
 module Basepath
   extend self
 
+  def path_from_caller_line(caller_line)
+    caller_line.sub(/:\d+(?::in `.*?')?$/, '')
+  end
+
   def mine(file = false)
-    path_to_first_caller = (s = caller.last) ? s.sub(/:\d+(?::in `.*?')?$/, '') : __FILE__
-    path = Pathname.new(path_to_first_caller).realpath
+    path_to_caller = path_from_caller_line(caller.first)
+    path = Pathname.new(path_to_caller).realpath
     file ? path : path.dirname
   end
 
