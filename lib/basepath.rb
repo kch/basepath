@@ -4,19 +4,14 @@ module Basepath
   DOT_BASE = '.base'
   extend self
 
-  def path_from_caller_line(caller_line)
-    caller_line.sub(/:\d+(?::in `.*?')?$/, '')
-  end
-
   def mine(file = false)
     path_to_caller = path_from_caller_line(caller.first)
     path = Pathname.new(path_to_caller).realpath
     file ? path : path.dirname
   end
 
-  # used when setting consts and load_path
-  def const_expand!(s)
-    (s.sub!(RX_CONSTS, '') ? Object.const_get($1) : ::BASE_PATH).join(s);
+  def path_from_caller_line(caller_line)
+    caller_line.sub(/:\d+(?::in `.*?')?$/, '')
   end
 
   def find_base(start_path)
@@ -47,6 +42,10 @@ module Basepath
     err << ", then tried #{paths_tried[1]}" if paths_tried[1]
     err << ")"
     raise err
+  end
+
+  def const_expand!(s)
+    (s.sub!(RX_CONSTS, '') ? Object.const_get($1) : ::BASE_PATH).join(s)
   end
 
   def resolve!
