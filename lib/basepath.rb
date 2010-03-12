@@ -61,7 +61,7 @@ module Basepath
     # set path consts
     k_order   = [] # ruby 1.8 doesn't retain hash key order
     consts    = base_conf[:consts].scan(/([A-Z][A-Z0-9_]*)=(.+)/).inject({}) { |h, (k, v)| k_order << k; h[k] = v; h }
-    const_set :RX_CONSTS, /^(#{consts.keys.map(&Regexp.method(:escape)).join('|')})(?:\/|$)/
+    const_set :RX_CONSTS, /^(BASE_PATH|#{consts.keys.map(&Regexp.method(:escape)).join('|')})(?:\/|$)/
     k_order.each { |k| Object.const_set(k, Basepath.const_expand!(consts[k])) }
 
     # set load_paths
