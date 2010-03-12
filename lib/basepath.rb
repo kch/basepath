@@ -44,8 +44,10 @@ module Basepath
     raise err
   end
 
-  def const_expand!(s)
-    (s.sub!(RX_CONSTS, '') ? Object.const_get($1) : ::BASE_PATH).join(s)
+  def const_expand!(s, fallback = true)
+    k = s.sub!(RX_CONSTS, '') && Object.const_get($1)
+    return s if not k unless fallback
+    (k || ::BASE_PATH).join(s)
   end
 
   def resolve!
@@ -73,7 +75,7 @@ module Basepath
     # requires
     loaded = caller(0).map { |s| s[/\A(.+?)(?:\.rb)?:\d+(?::in `.*?')?\z/, 1] }.compact.uniq
     globs, names = base_conf[:requires].split("\n").partition { |s| s =~ /\*/ }
-    names.concat \
+    names.map! { |s| const_expand! s, false }.concat \
       globs.map { |s| Dir[Basepath.const_expand!(s).to_s + ".rb"] }\
         .flatten.select { |s| File.file? s }.map { |s| s.sub(/\.rb$/, '') }
     names.each { |lib| require lib }
