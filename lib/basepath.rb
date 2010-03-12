@@ -64,11 +64,11 @@ module Basepath
     k_order   = [] # ruby 1.8 doesn't retain hash key order
     consts    = base_conf[:consts].scan(/([A-Z][A-Z0-9_]*)=(.+)/).inject({}) { |h, (k, v)| k_order << k; h[k] = v; h }
     const_set :RX_CONSTS, /^(BASE_PATH|#{consts.keys.map(&Regexp.method(:escape)).join('|')})(?:\/|$)/
-    k_order.each { |k| Object.const_set(k, Basepath.const_expand!(consts[k])) }
+    k_order.each { |k| Object.const_set(k, const_expand!(consts[k])) }
 
     # set load_paths
     load_paths = base_conf[:load_paths].split("\n").map { |s|
-      Dir[Basepath.const_expand!(s).to_s] }.flatten.select { |s|
+      Dir[const_expand!(s).to_s] }.flatten.select { |s|
         File.directory? s }
     $LOAD_PATH.unshift(*load_paths)
 
@@ -76,7 +76,7 @@ module Basepath
     loaded = caller(0).map { |s| s[/\A(.+?)(?:\.rb)?:\d+(?::in `.*?')?\z/, 1] }.compact.uniq
     globs, names = base_conf[:requires].split("\n").partition { |s| s =~ /\*/ }
     names.map! { |s| const_expand! s, false }.concat \
-      globs.map { |s| Dir[Basepath.const_expand!(s).to_s + ".rb"] }\
+      globs.map { |s| Dir[const_expand!(s).to_s + ".rb"] }\
         .flatten.select { |s| File.file? s }.map { |s| s.sub(/\.rb$/, '') }
     names.each { |lib| require lib }
 
