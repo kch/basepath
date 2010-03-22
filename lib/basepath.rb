@@ -5,7 +5,7 @@ module Basepath
   extend self
 
   def mine(file = false)
-    path_to_caller = path_from_caller_line(caller.first)
+    path_to_caller = path_from_caller_line(caller.last)
     path = Pathname.new(path_to_caller).realpath
     file ? path : path.dirname
   end
