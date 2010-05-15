@@ -11,7 +11,7 @@ module Basepath
   end
 
   def path_from_caller_line(caller_line)
-    caller_line.sub(/:\d+(?::in `.*?')?$/, '')
+    caller_line.sub(/:\d+(?::in `.*?')?$/, '').sub(/^\(\w+\)$/, '')
   end
 
   def find_base(start_path)
