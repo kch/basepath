@@ -81,7 +81,7 @@ module Basepath
     names.each { |lib| require lib }
 
     # includes
-    base_conf[:includes].split("\n").each { |k| include Object.const_get(k.strip) }
+    base_conf[:includes].split("\n").each { |k| Object.send :include, Object.const_get(k.strip) }
   end
 end
 
