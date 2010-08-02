@@ -24,16 +24,19 @@ module Basepath
 
   def find_base!
     paths_tried = []
-    index_of_require_line = caller.index { |line| line =~ /`require'$/ } \
-      and caller_line_before_require = caller[index_of_require_line.succ]
-    if index_of_require_line && caller_line_before_require
+    caller_line_before_require = caller.inject(false) do |was_in_require, line|
+      is_in_require = line.force_encoding(__ENCODING__) =~ /`(rescue in )?require'$/
+      break line if was_in_require && !is_in_require
+      is_in_require
+    end
+    if caller_line_before_require
       path_from_requirer = Pathname.new(path_from_caller_line(caller_line_before_require)).realpath.dirname
       base_from_requirer = find_base(path_from_requirer)
       return base_from_requirer if base_from_requirer
       paths_tried << path_from_requirer
     end
     path_from_pwd = Pathname.new(Dir.pwd).realpath
-    pwd_path_parent_of_requirer_path = index_of_require_line && "#{path_from_requirer}/".index("#{path_from_pwd}/") == 0
+    pwd_path_parent_of_requirer_path = caller_line_before_require && "#{path_from_requirer}/".index("#{path_from_pwd}/") == 0
     if not pwd_path_parent_of_requirer_path
       base_from_pwd = find_base(path_from_pwd)
       return base_from_pwd if base_from_pwd
