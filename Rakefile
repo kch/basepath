@@ -4,12 +4,12 @@ require 'rake'
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
-    gem.name = "basepath"
-    gem.summary = %Q{Define you application base path for easy requires and general access to files.}
+    gem.name        = "basepath"
+    gem.summary     = %Q{Define you application base path for easy requires and general access to files.}
     gem.description = %Q{By adding a .base file to your application base dir, helps you augment $LOAD_PATH, auto-require files, and set constants to important paths.}
-    gem.email = "dev@caiochassot.com"
-    gem.homepage = "http://github.com/kch/basepath"
-    gem.authors = ["Caio Chassot"]
+    gem.email       = "dev@caiochassot.com"
+    gem.homepage    = "http://github.com/kch/basepath"
+    gem.authors     = ["Caio Chassot"]
     gem.add_development_dependency "bacon", ">= 0"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
