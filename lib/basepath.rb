@@ -77,7 +77,7 @@ module Basepath
     $LOAD_PATH.unshift(*load_paths)
 
     # requires
-    loaded = caller(0).map { |s| s[/\A(.+?)(?:\.rb)?:\d+(?::in `.*?')?\z/, 1] }.compact.uniq
+    loaded = caller(0).map { |s| s.force_encoding(__ENCODING__)[/\A(.+?)(?:\.rb)?:\d+(?::in `.*?')?\z/, 1] }.compact.uniq
     globs, names = base_conf[:requires].split("\n").partition { |s| s =~ /\*/ }
     names.map! { |s| const_expand! s, false }.concat \
       globs.map { |s| Dir[const_expand!(s).to_s + ".rb"] }\
